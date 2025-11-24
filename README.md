@@ -29,8 +29,6 @@ Appetite/
 │   └── dashboards/        # Exported Grafana dashboards
 │
 ├── documentation/         # Project report, proposal, notebook experiments
-│
-└── videos/                # Demo screencast (user-recorded)
 
 ---
 
@@ -200,9 +198,9 @@ The following technologies were **not used** in this project:
 
 ## Project Highlights
 
-✅ **AI-Powered Recipe Generation** – Personalized recipes based on available ingredients  
-✅ **Smart Pantry Management** – Track inventory and reduce food waste  
-✅ **Category-Based Recommendations** – Quick meals, healthy options, high-protein dishes  
-✅ **Production-Ready Deployment** – Fully containerized with Docker  
-✅ **Real-Time Monitoring** – Prometheus metrics with Grafana dashboards  
-✅ **Clean Architecture** – Separated backend, frontend, and monitoring concerns
+**AI-Powered Recipe Generation** – Personalized recipes based on available ingredients  
+**Smart Pantry Management** – Track inventory and reduce food waste  
+**Category-Based Recommendations** – Quick meals, healthy options, high-protein dishes  
+**Production-Ready Deployment** – Fully containerized with Docker  
+**Real-Time Monitoring** – Prometheus metrics with Grafana dashboards  
+**Clean Architecture** – Separated backend, frontend, and monitoring concerns

@@ -1,0 +1,76 @@
+{
+  "id": null,
+  "uid": "appetite-dashboard",
+  "title": "Appetite Monitoring Dashboard",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "panels": [
+
+    {
+      "type": "stat",
+      "title": "In-Progress Requests",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "appetite_inprogress_requests",
+          "legendFormat": "in-progress"
+        }
+      ]
+    },
+
+    {
+      "type": "bargauge",
+      "title": "Feature Usage Counts",
+      "gridPos": { "x": 6, "y": 0, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "sum by (feature) (appetite_feature_usage_total)",
+          "legendFormat": "{{feature}}"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal"
+      }
+    },
+
+    {
+      "type": "bargauge",
+      "title": "User Feedback Count",
+      "gridPos": { "x": 0, "y": 6, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "sum by (page, rating) (appetite_feedback_total)",
+          "legendFormat": "page={{page}} rating={{rating}}"
+        }
+      ]
+    },
+
+    {
+      "type": "timeseries",
+      "title": "Request Rate (per second)",
+      "gridPos": { "x": 12, "y": 6, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "sum(rate(appetite_request_count_total[1m]))",
+          "legendFormat": "req/s"
+        }
+      ]
+    },
+
+    {
+      "type": "heatmap",
+      "title": "Request Latency Distribution",
+      "gridPos": { "x": 0, "y": 12, "w": 24, "h": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(appetite_request_latency_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95 latency"
+        }
+      ]
+    }
+
+  ],
+  "templating": { "list": [] }
+}
