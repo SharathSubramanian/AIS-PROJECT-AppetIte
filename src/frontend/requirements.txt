@@ -1,0 +1,28 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+pydantic[email]
+passlib[bcrypt]
+bcrypt==4.0.1
+python-jose[cryptography]
+python-multipart
+jinja2
+
+prometheus-client
+
+# HF model inference
+transformers==4.39.3
+tokenizers
+torch
+
+# misc
+requests
+numpy
+
+
+streamlit
+requests
+python-jose
+pillow
+numpy
