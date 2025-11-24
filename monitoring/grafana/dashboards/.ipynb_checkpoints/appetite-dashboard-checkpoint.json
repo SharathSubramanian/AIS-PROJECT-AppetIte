@@ -1,0 +1,99 @@
+{
+  "id": null,
+  "uid": "appetite-phase4",
+  "title": "AppetIte Monitoring Dashboard",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "5s",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Request Rate (per endpoint)",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum by (endpoint) (rate(request_count_total[1m]))",
+          "legendFormat": "{{endpoint}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Average Latency (seconds)",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(request_latency_seconds_sum[1m])) by (endpoint) / sum(rate(request_latency_seconds_count[1m])) by (endpoint)",
+          "legendFormat": "{{endpoint}}"
+        }
+      ]
+    },
+    {
+      "type": "heatmap",
+      "title": "Latency Histogram",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum by (le, endpoint) (rate(request_latency_seconds_bucket[1m]))",
+          "legendFormat": "{{endpoint}} | {{le}}"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "In-Progress Requests",
+      "gridPos": { "x": 0, "y": 16, "w": 6, "h": 5 },
+      "targets": [
+        {
+          "expr": "in_progress_requests",
+          "legendFormat": "in-progress"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Quick Generate Usage",
+      "gridPos": { "x": 6, "y": 16, "w": 6, "h": 5 },
+      "targets": [
+        {
+          "expr": "usage_count_total{feature=\"quick_generate\"}",
+          "legendFormat": "quick"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Recommendation Usage",
+      "gridPos": { "x": 12, "y": 16, "w": 6, "h": 5 },
+      "targets": [
+        {
+          "expr": "usage_count_total{feature=\"recommendations\"}",
+          "legendFormat": "recommend"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Feedback Submissions",
+      "gridPos": { "x": 18, "y": 16, "w": 6, "h": 5 },
+      "targets": [
+        {
+          "expr": "sum(feedback_count_total)",
+          "legendFormat": "feedback"
+        }
+      ]
+    },
+    {
+      "type": "barchart",
+      "title": "Feedback Ratings by Page",
+      "gridPos": { "x": 0, "y": 21, "w": 24, "h": 9 },
+      "targets": [
+        {
+          "expr": "sum by (source, rating)(feedback_count_total)",
+          "legendFormat": "{{source}} | {{rating}}"
+        }
+      ]
+    }
+  ]
+}
