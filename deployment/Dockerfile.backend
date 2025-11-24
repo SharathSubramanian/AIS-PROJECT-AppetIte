@@ -1,0 +1,33 @@
+FROM python:3.10-slim
+
+# System deps for bcrypt + torch/transformers
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential gcc libffi-dev libssl-dev python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install backend deps (this file EXISTS in your repo)
+COPY src/requirements.txt /app/requirements.txt
+
+# Force-good bcrypt/passlib versions (fixes __about__ crash)
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir --force-reinstall \
+        bcrypt==4.0.1 passlib[bcrypt]==1.7.4
+
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# Copy backend + model assets
+COPY src/backend /app/backend
+COPY src/model /app/model
+
+# sqlite runtime folder
+RUN mkdir -p /app/data
+
+ENV PYTHONPATH=/app
+ENV DATABASE_URL=sqlite:////app/data/appetite.db
+ENV APPETITE_MODEL_DIR=/app/model/flan_t5_appetite_lora
+
+EXPOSE 8000
+
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

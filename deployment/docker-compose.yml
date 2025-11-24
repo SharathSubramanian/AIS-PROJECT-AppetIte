@@ -1,0 +1,77 @@
+services:
+  appetite-backend:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.backend
+    container_name: appetite-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - TZ=UTC
+      - PYTHONPATH=/app
+      - DATABASE_URL=sqlite:////app/data/appetite.db
+      - APPETITE_MODEL_DIR=/app/model/flan_t5_appetite_lora
+    volumes:
+      - backend-data:/app/data
+    networks:
+      - appetite-net
+    restart: always
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  appetite-frontend:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.frontend
+    container_name: appetite-frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - BACKEND_URL=http://appetite-backend:8000
+    depends_on:
+      appetite-backend:
+        condition: service_healthy
+    networks:
+      - appetite-net
+    restart: always
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: appetite-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    depends_on:
+      appetite-backend:
+        condition: service_healthy
+    networks:
+      - appetite-net
+    restart: always
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: appetite-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ../monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - appetite-net
+    restart: always
+
+networks:
+  appetite-net:
+
+volumes:
+  backend-data:
