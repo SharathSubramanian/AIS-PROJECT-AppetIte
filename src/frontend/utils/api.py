@@ -8,7 +8,6 @@ import requests
 BASE_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 TIMEOUT = 60
 
-
 def _headers(token: str) -> Dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
 
@@ -101,22 +100,25 @@ def quick_generate(token: str, ingredients: List[str], category: Optional[str] =
     ))
 
 
-def cook_recipe(token: str, recipe_title: str, ingredients: list, instructions: str):
-    payload = {
-        "name": recipe_title,
-        "items": ingredients,
-        "instructions": instructions,
-    }
+def cook_recipe(
+    token: str,
+    recipe_title: str,
+    ingredients: list,
+    instructions: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    'Cook' a recipe by telling the backend which ingredients were used.
 
-    r = requests.post(
-        f"{BACKEND_URL}/shopping-list",
-        headers={"Authorization": f"Bearer {token}"},
-        json=payload,
-        timeout=45,
-    )
-
-    r.raise_for_status()
-    return r.json()
+    recipe_title and instructions are kept in the signature so the existing
+    Streamlit page does not need to change, but the backend currently only
+    needs the list of ingredients to update the pantry.
+    """
+    return _safe_request(lambda: requests.post(
+        f"{BASE_URL}/cook",
+        json={"ingredients": ingredients},
+        headers=_headers(token),
+        timeout=TIMEOUT,
+    ))
 
 
 # ---------- Shopping ----------

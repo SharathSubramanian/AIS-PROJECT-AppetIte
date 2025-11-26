@@ -41,18 +41,30 @@ def generate_recipe_text(
     model, tokenizer = get_model_and_tokenizer()
     device = get_device()
 
-    cat_part = f"{category} " if category else ""
+    # Category as descriptive text
+    cat_part = f"{category} " if category else "simple "
 
+    # Enhanced prompt to avoid repeated oven steps and force ingredient use
     prompt = (
-        f"Given the following ingredients: {ingredients_text}\n"
-        f"Write a {cat_part}cooking recipe.\n"
-        f"Format STRICTLY as:\n"
-        f"Title: <recipe title>\n\n"
-        f"Instructions:\n"
-        f"1. <step 1>\n"
-        f"2. <step 2>\n"
-        f"3. <step 3>\n"
-        f"Each step MUST be on a new line.\n"
+        "You are a creative and skilled home cook.\n"
+        f"Create a unique {cat_part}recipe that ONLY uses the following ingredients "
+        f"(plus basic staples like salt, pepper, oil, and water): {ingredients_text}.\n\n"
+        "Requirements:\n"
+        "- The instructions MUST be different whenever the ingredient list changes.\n"
+        "- Mention the actual ingredients by name in the steps.\n"
+        "- DO NOT automatically preheat an oven. Only do so if it makes sense.\n"
+        "- DO NOT repeat generic patterns like 'line a baking sheet'.\n"
+        "- Steps must be natural for the specific ingredients.\n"
+        "- Prefer stovetop, boiling, mixing, tossing, or pan cooking where appropriate.\n"
+        "- Avoid irrelevant steps.\n\n"
+        "Format STRICTLY as:\n"
+        "Title: <recipe title>\n\n"
+        "Instructions:\n"
+        "1. <step 1>\n"
+        "2. <step 2>\n"
+        "3. <step 3>\n"
+        "4. <step 4>\n"
+        "(add more steps if needed)\n"
     )
 
     inputs = tokenizer(
@@ -70,15 +82,20 @@ def generate_recipe_text(
             temperature=TEMPERATURE,
             top_p=TOP_P,
             top_k=TOP_K,
-            num_beams=NUM_BEAMS,
+            num_beams=1,                 # FORCE diversity. Keeps your config otherwise unchanged.
             no_repeat_ngram_size=3,
             early_stopping=True,
         )
 
     text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+    # Formatting cleanup so Streamlit displays nicely
     if "Instructions:" in text:
         text = text.replace("Instructions:", "\n\nInstructions:\n")
+
+    # break sentences into lines
     text = text.replace(". ", ".\n")
+
     return text
 
 

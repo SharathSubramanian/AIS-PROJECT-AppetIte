@@ -247,7 +247,25 @@ def list_shopping_lists(
             )
         )
     return out
+# ---------- Cook ----------
+@app.post("/cook", response_model=schemas.CookResponse)
+def cook(
+    req: schemas.CookRequest,
+    db: Session = Depends(get_db_dep),
+    current_user: models.User = Depends(get_current_user_dep),
+):
+    """
+    Remove ingredients that were used in a cooked recipe from the user's pantry.
+    """
+    USAGE_COUNT.labels(feature="cook").inc()
 
+    removed = pantry_service.remove_used_items(
+        db=db,
+        user_id=current_user.id,
+        used=req.ingredients,
+    )
+
+    return schemas.CookResponse(removed=removed)
 
 # ---------- Feedback ----------
 @app.post("/feedback", status_code=201)
